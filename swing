@@ -1,0 +1,97 @@
+package xlab7;
+
+import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+public class Shop implements ActionListener {
+	String user="user1";
+	String pass="1234";
+	String un="";
+	String pw;
+	int id;
+	double total=0.0;
+	JTextField userid, phno, itemIdField, quantityField, itemNameField, totalCostField;
+    JButton submit, printButton;
+	static HashMap<Long, Integer> users=new HashMap<Long, Integer>();
+	static ArrayList<Item> items=new ArrayList<Item>();
+	
+	Shop() {
+		boolean isAuthenticated=false;
+		while(!isAuthenticated) {
+			un=JOptionPane.showInputDialog(null, "Enter Username");
+			pw=JOptionPane.showInputDialog(null, "Enter Password");
+			if(user.equals(un) && pass.equals(pw)) {
+				isAuthenticated=true;
+			} else {
+				JOptionPane.showMessageDialog(null, "Invalid Username or password");
+			}
+		}
+		long ph=Long.parseLong(JOptionPane.showInputDialog(null, "Enter Phone Number"));
+		id=Integer.parseInt(JOptionPane.showInputDialog(null, "New user, Enter new id"));
+		users.put(ph, id);
+		JFrame frm=new JFrame("Details");
+		JLabel useridLabel=new JLabel("User ID");
+		JLabel phnoLabel=new JLabel("Phone Number");
+		JLabel itemidLabel=new JLabel("Item ID");
+		JLabel quantityLabel=new JLabel("Quantity");
+		JLabel itemNameLabel=new JLabel("Item Name");
+		JLabel totalCostLabel=new JLabel("Total Cost");
+		userid=new JTextField(20);
+		phno=new JTextField(20);;
+		itemIdField=new JTextField(20);
+		quantityField=new JTextField(20);
+		itemNameField=new JTextField(20);
+		totalCostField=new JTextField(20);
+		submit=new JButton("Submit");
+		printButton=new JButton("Print");
+		frm.add(useridLabel); frm.add(userid); userid.setText(String.valueOf(id));
+		frm.add(phnoLabel); frm.add(phno); phno.setText(String.valueOf(ph));
+		frm.add(itemidLabel); frm.add(itemIdField);
+		frm.add(quantityLabel); frm.add(quantityField);
+		frm.add(itemNameLabel); frm.add(itemNameField);
+		frm.add(totalCostLabel); frm.add(totalCostField);
+		frm.add(submit);
+		frm.add(printButton);
+		submit.addActionListener(this);
+		printButton.addActionListener(this);
+		frm.setSize(400, 300);
+		frm.setVisible(true);
+		frm.setLayout(new GridLayout(7, 2));
+	}
+	public void actionPerformed(ActionEvent ae) {
+		if(ae.getSource()==submit) {
+			String itemId=itemIdField.getText();
+			int itemQuantity=Integer.parseInt(quantityField.getText());
+			for(Item item: items) {
+				if(item.id.equals(itemId)) {
+					itemNameField.setText(item.name);
+					total=itemQuantity*item.price;
+					totalCostField.setText(String.valueOf(total));
+					break;
+				}
+			}
+			String discounts[]= {"5", "10", "15"};
+			int r=JOptionPane.showOptionDialog(null, "Select discount", "Discount",
+											   JOptionPane.DEFAULT_OPTION,
+											   JOptionPane.QUESTION_MESSAGE,
+											   null, discounts, discounts[0]);
+			if(r!=-1) {
+				total=total-(total*0.01*Integer.parseInt(discounts[r]));
+				totalCostField.setText(String.valueOf(total));
+			}
+		}
+		if(ae.getSource()==printButton) {
+			String itemName=itemNameField.getText();
+			String totalCost=totalCostField.getText();
+			JOptionPane.showMessageDialog(null, "Item: "+itemName+"\nTotal Cost: "+totalCost);
+		}
+	}
+	
+	public static void main(String[] args) {
+		items.add(new Item("Bat", "1", 5000));
+		items.add(new Item("Gloves", "2", 2000));
+		items.add(new Item("Ball", "3", 600));
+		new Shop();
+	}
+}
