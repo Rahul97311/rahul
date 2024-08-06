@@ -1,0 +1,84 @@
+package xlab8;
+
+import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+public class CustomerApp implements ActionListener {
+	String url="jdbc:mysql://localhost:3306/javafinals";
+	String user="root";
+	String pass="priyanshu";
+	Connection con;
+	PreparedStatement st;
+	ResultSet rs;
+	JFrame frame;
+	JTextField custNoField, custNameField, stateField, creditLimitField;
+	JButton insertButton, displayButton;
+	JTextArea displayArea;
+	public CustomerApp() {
+		try {
+			con=DriverManager.getConnection(url, user, pass);
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		frame=new JFrame("Customer Management");
+		custNoField=new JTextField(10);
+		custNameField=new JTextField(10);
+		stateField=new JTextField(10);
+		creditLimitField=new JTextField(10);
+		insertButton=new JButton("Insert");
+		displayButton=new JButton("Display");
+		insertButton.addActionListener(this);
+		displayButton.addActionListener(this);
+		displayArea=new JTextArea(10, 30);
+		JPanel jp=new JPanel(new GridLayout(6, 2));
+		jp.add(new JLabel("Customer No")); jp.add(custNoField);
+		jp.add(new JLabel("Customer Name")); jp.add(custNameField);
+		jp.add(new JLabel("State")); jp.add(stateField);
+		jp.add(new JLabel("Credit Limit")); jp.add(creditLimitField);
+		jp.add(insertButton);
+		jp.add(displayButton);
+		jp.add(displayArea);
+		frame.add(jp);
+		frame.setSize(600, 400);
+		frame.setVisible(true);
+	}
+	
+	public void actionPerformed(ActionEvent ae) {
+		if(ae.getSource()==insertButton) {
+			try {
+				String sql="Insert into customer(CustNo, CustName, State, Credit_Limit) Values(?, ?, ?, ?)";
+				st=con.prepareStatement(sql);
+				st.setInt(1, Integer.parseInt(custNoField.getText()));
+				st.setString(2, custNameField.getText());
+				st.setString(3, stateField.getText());
+				st.setDouble(4, Double.parseDouble(creditLimitField.getText()));
+				st.executeUpdate();
+				JOptionPane.showMessageDialog(frame, "Customer inserted successfully");
+			} catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		if(ae.getSource()==displayButton) {
+			try {
+				String sql="Select * from Customer";
+				st=con.prepareStatement(sql);
+				rs=st.executeQuery();
+				while(rs.next()) {
+					int custNo=rs.getInt("CustNo");
+					String custName=rs.getString("CustName");
+					String state=rs.getString("state");
+					double creditLimit=rs.getDouble("Credit_Limit");
+					displayArea.append(custNo+"\t"+custName+"\t"+state+"\t"+creditLimit+"\n");
+				}
+			} catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void main(String[] args) {
+		new CustomerApp();
+	}
+}
